@@ -1,0 +1,71 @@
+/* eslint-disable max-classes-per-file */
+/**
+ * Custom Application Error Class
+ * Extends native Error class with additional properties for API responses
+ */
+class AppError extends Error {
+  constructor(message, statusCode, errors = null) {
+    super(message);
+
+    this.statusCode = statusCode;
+    this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
+    this.isOperational = true;
+    this.errors = errors; // For validation errors
+
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+// Pre-defined error types for common scenarios
+class BadRequestError extends AppError {
+  constructor(message = 'Bad Request', errors = null) {
+    super(message, 400, errors);
+  }
+}
+
+class UnauthorizedError extends AppError {
+  constructor(message = 'Unauthorized - Please login') {
+    super(message, 401);
+  }
+}
+
+class ForbiddenError extends AppError {
+  constructor(message = 'Forbidden - You do not have permission') {
+    super(message, 403);
+  }
+}
+
+class NotFoundError extends AppError {
+  constructor(message = 'Resource not found') {
+    super(message, 404);
+  }
+}
+
+class ConflictError extends AppError {
+  constructor(message = 'Resource already exists') {
+    super(message, 409);
+  }
+}
+
+class ValidationError extends AppError {
+  constructor(message = 'Validation failed', errors = null) {
+    super(message, 422, errors);
+  }
+}
+
+class InternalServerError extends AppError {
+  constructor(message = 'Internal Server Error') {
+    super(message, 500);
+  }
+}
+
+module.exports = {
+  AppError,
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
+  ValidationError,
+  InternalServerError,
+};
