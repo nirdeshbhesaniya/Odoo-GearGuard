@@ -74,7 +74,7 @@ const RequestCreate = () => {
       try {
         const response = await equipmentService.getEquipmentById(equipmentId);
         const equipment = response.data?.data || response.data;
-        
+
         // Auto-fill maintenance team from equipment if available
         if (equipment.maintenanceTeam) {
           setFormData((prev) => ({

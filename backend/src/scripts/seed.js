@@ -402,7 +402,7 @@ const seedData = async () => {
 
     // Create Maintenance Requests
     console.log('📋 Creating maintenance requests...');
-    
+
     // NEW REQUESTS (Pending Assignment)
     await MaintenanceRequest.create({
       subject: 'Quarterly HVAC Filter Replacement',
