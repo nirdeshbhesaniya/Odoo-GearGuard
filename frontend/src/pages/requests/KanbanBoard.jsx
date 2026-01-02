@@ -21,7 +21,7 @@ const KanbanBoard = () => {
   });
   const [teams, setTeams] = useState([]);
   const [draggedRequestId, setDraggedRequestId] = useState(null);
-  
+
   // Only admin, manager, and technician can drag and drop
   const canDragAndDrop = user && ['admin', 'manager', 'technician'].includes(user.role?.toLowerCase());
 
@@ -85,7 +85,7 @@ const KanbanBoard = () => {
 
   const handleDrop = async (requestId, newStatus) => {
     setDraggedRequestId(null);
-    
+
     if (!canDragAndDrop) {
       showWarning('You do not have permission to move requests');
       return;
@@ -94,7 +94,7 @@ const KanbanBoard = () => {
     // Find the request and its current status
     let currentStatus = null;
     let request = null;
-    
+
     for (const [status, statusRequests] of Object.entries(requests)) {
       const found = statusRequests.find(r => r._id === requestId);
       if (found) {
@@ -117,7 +117,7 @@ const KanbanBoard = () => {
     // Check if transition is valid (skip for admin)
     const userRole = user?.role?.toLowerCase();
     const allowedStatuses = validTransitions[currentStatus] || [];
-    
+
     if (userRole !== 'admin' && !allowedStatuses.includes(newStatus)) {
       showError(`Cannot move from ${currentStatus} to ${newStatus}. Allowed: ${allowedStatuses.join(', ') || 'None'}`);
       return;
@@ -136,7 +136,7 @@ const KanbanBoard = () => {
       });
 
       showSuccess(`Request moved to ${newStatus}`);
-      
+
       // Mark equipment as unusable if moved to Scrap
       if (newStatus === 'Scrap' && request.equipment) {
         showWarning(`Equipment "${request.equipment.name}" should be marked as unusable`);

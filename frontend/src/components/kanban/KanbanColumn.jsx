@@ -60,11 +60,10 @@ const KanbanColumn = ({ status, requests, count, isDragDisabled = false, onDragS
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`p-3 space-y-3 min-h-[500px] border-2 border-t-0 rounded-b-lg transition-colors ${
-          isDragOver
+        className={`p-3 space-y-3 min-h-[500px] border-2 border-t-0 rounded-b-lg transition-colors ${isDragOver
             ? 'bg-blue-50 border-blue-300'
             : 'bg-gray-50 border-gray-200'
-        }`}
+          }`}
       >
         {requests && requests.length > 0 ? (
           requests.map((request) => (
