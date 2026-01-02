@@ -30,20 +30,26 @@ const EquipmentCreate = () => {
   const fetchTeams = async () => {
     try {
       const response = await teamService.getTeams();
+      console.log('Teams response:', response);
       const teamsData = response.data?.docs || response.data || [];
+      console.log('Teams data:', teamsData);
       setTeams(Array.isArray(teamsData) ? teamsData : []);
     } catch (error) {
       console.error('Error fetching teams:', error);
+      showError('Failed to load teams');
     }
   };
 
   const fetchTechnicians = async () => {
     try {
-      const response = await userService.getUsers({ role: 'technician' });
+      const response = await userService.getUsers({ role: 'Technician' });
+      console.log('Technicians response:', response);
       const users = response.data?.docs || response.data || [];
+      console.log('Technicians data:', users);
       setTechnicians(Array.isArray(users) ? users : []);
     } catch (error) {
       console.error('Error fetching technicians:', error);
+      showError('Failed to load technicians');
     }
   };
 

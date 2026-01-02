@@ -33,9 +33,12 @@ const EquipmentList = () => {
       if (searchTerm) params.search = searchTerm;
 
       const response = await api.get('/equipment', { params });
+      console.log('Equipment response:', response);
 
       if (response.data.status === 'success') {
         const { docs, totalPages: pages, totalDocs } = response.data.data;
+        console.log('Equipment docs:', docs);
+        console.log('Total pages:', pages, 'Total docs:', totalDocs);
         setEquipment(Array.isArray(docs) ? docs : []);
         setTotalPages(pages || 1);
         setTotalItems(totalDocs || 0);

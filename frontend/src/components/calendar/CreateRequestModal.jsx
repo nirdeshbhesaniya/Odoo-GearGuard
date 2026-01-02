@@ -20,12 +20,15 @@ const CreateRequestModal = ({ selectedDate, onClose, onSuccess }) => {
   const fetchEquipment = async () => {
     try {
       const response = await equipmentService.getEquipment();
-      // Response structure: { status: 'success', data: { equipment: [...], pagination: {...} } }
-      const equipmentList = response.data?.equipment || response.data || [];
-      setEquipment(equipmentList.filter(e => !e.isScrapped)); // Only show active equipment
+      console.log('Equipment response:', response);
+      // Response structure after pagination fix: { status: 'success', data: { docs: [...], totalPages, totalDocs } }
+      const equipmentList = response.data?.data?.docs || response.data?.docs || response.data?.equipment || response.data || [];
+      console.log('Equipment list:', equipmentList);
+      setEquipment(Array.isArray(equipmentList) ? equipmentList.filter(e => !e.isScrapped) : []); // Only show active equipment
     } catch (error) {
       console.error('Error fetching equipment:', error);
       toast.error('Failed to load equipment list');
+      setEquipment([]); // Set to empty array on error
     }
   };
 

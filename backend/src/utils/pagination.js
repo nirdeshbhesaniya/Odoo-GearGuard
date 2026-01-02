@@ -20,18 +20,16 @@ exports.paginate = async (model, filter = {}, options = {}) => {
   if (select) query.select(select);
   if (populate) query.populate(populate);
 
-  const [data, total] = await Promise.all([
+  const [docs, total] = await Promise.all([
     query.exec(),
     model.countDocuments(filter),
   ]);
 
   return {
-    data,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit),
-    },
+    docs,
+    page,
+    limit,
+    totalDocs: total,
+    totalPages: Math.ceil(total / limit),
   };
 };

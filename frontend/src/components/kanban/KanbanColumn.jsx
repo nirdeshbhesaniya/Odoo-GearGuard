@@ -1,4 +1,4 @@
-import { Droppable } from 'react-beautiful-dnd';
+import { useState } from 'react';
 import KanbanCard from './KanbanCard';
 
 const statusColors = {
@@ -15,7 +15,31 @@ const statusIcons = {
   Scrap: '🗑️',
 };
 
-const KanbanColumn = ({ status, requests, count }) => {
+const KanbanColumn = ({ status, requests, count, isDragDisabled = false, onDragStart, onDrop, draggedRequestId }) => {
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    const requestId = e.dataTransfer.getData('requestId');
+    if (requestId && onDrop) {
+      onDrop(requestId, status);
+    }
+  };
+
   return (
     <div className="flex-1 min-w-[300px] max-w-[350px]">
       {/* Column Header */}
@@ -32,33 +56,32 @@ const KanbanColumn = ({ status, requests, count }) => {
       </div>
 
       {/* Droppable Area */}
-      <Droppable droppableId={status}>
-        {(provided, snapshot) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className={`p-3 space-y-3 min-h-[500px] border-2 border-t-0 rounded-b-lg transition-colors ${snapshot.isDraggingOver
-              ? 'bg-blue-50 border-blue-300'
-              : 'bg-gray-50 border-gray-200'
-              }`}
-          >
-            {requests && requests.length > 0 ? (
-              requests.map((request, index) => (
-                <KanbanCard
-                  key={request._id}
-                  request={request}
-                  index={index}
-                />
-              ))
-            ) : (
-              <div className="flex items-center justify-center h-32 text-gray-400">
-                <p className="text-sm">No requests</p>
-              </div>
-            )}
-            {provided.placeholder}
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`p-3 space-y-3 min-h-[500px] border-2 border-t-0 rounded-b-lg transition-colors ${
+          isDragOver
+            ? 'bg-blue-50 border-blue-300'
+            : 'bg-gray-50 border-gray-200'
+        }`}
+      >
+        {requests && requests.length > 0 ? (
+          requests.map((request) => (
+            <KanbanCard
+              key={request._id}
+              request={request}
+              isDragDisabled={isDragDisabled}
+              onDragStart={onDragStart}
+              isDragging={draggedRequestId === request._id}
+            />
+          ))
+        ) : (
+          <div className="flex items-center justify-center h-32 text-gray-400">
+            <p className="text-sm">No requests</p>
           </div>
         )}
-      </Droppable>
+      </div>
     </div>
   );
 };

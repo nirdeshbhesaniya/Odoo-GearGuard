@@ -109,7 +109,7 @@ const Pagination = ({
                 </button>
               )
             ))}
-            ))}
+            
 
             <button
               onClick={() => onPageChange(currentPage + 1)}

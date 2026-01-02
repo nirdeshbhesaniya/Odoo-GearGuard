@@ -25,7 +25,7 @@ exports.getEquipment = asyncHandler(async (req, res) => {
 
   const result = await paginate(Equipment, filter, {
     page: parseInt(page, 10) || 1,
-    limit: parseInt(limit, 10) || 10,
+    limit: parseInt(limit, 10) || 100,
     populate: 'maintenanceTeam defaultTechnician createdBy',
     sort: '-createdAt',
   });

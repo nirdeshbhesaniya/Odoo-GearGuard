@@ -13,14 +13,14 @@ exports.getTeams = async (req, res, next) => {
     const filter = {};
     if (isActive !== undefined) filter.isActive = isActive === 'true';
     if (search) {
-      filter.name = { $regex: search, $options: 'i' };
+      filter.teamName = { $regex: search, $options: 'i' };
     }
 
     const result = await paginate(Team, filter, {
       page: parseInt(page, 10) || 1,
-      limit: parseInt(limit, 10) || 10,
+      limit: parseInt(limit, 10) || 100,
       populate: 'teamLead members createdBy',
-      sort: 'name',
+      sort: 'teamName',
     });
 
     res.json({

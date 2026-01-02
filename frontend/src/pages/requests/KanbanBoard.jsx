@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { DragDropContext } from 'react-beautiful-dnd';
 import KanbanColumn from '../../components/kanban/KanbanColumn';
 import Spinner from '../../components/common/Spinner';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
 import api from '../../services/api';
 import { showSuccess, showError, showWarning } from '../../utils/toast';
+import { useAuth } from '../../context/AuthContext';
 
 const KanbanBoard = () => {
+  const { user } = useAuth();
   const [requests, setRequests] = useState({
     New: [],
     'In Progress': [],
@@ -19,6 +20,10 @@ const KanbanBoard = () => {
     maintenanceTeam: '',
   });
   const [teams, setTeams] = useState([]);
+  const [draggedRequestId, setDraggedRequestId] = useState(null);
+  
+  // Only admin, manager, and technician can drag and drop
+  const canDragAndDrop = user && ['admin', 'manager', 'technician'].includes(user.role?.toLowerCase());
 
   useEffect(() => {
     fetchRequests();
@@ -67,36 +72,79 @@ const KanbanBoard = () => {
     }
   };
 
-  const handleDragEnd = async (result) => {
-    if (!result.destination) return;
+  const handleDragStart = (e, requestId) => {
+    if (!canDragAndDrop) {
+      e.preventDefault();
+      showWarning('You do not have permission to move requests');
+      return;
+    }
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('requestId', requestId);
+    setDraggedRequestId(requestId);
+  };
 
-    const { source, destination, draggableId } = result;
-
-    // No movement
-    if (source.droppableId === destination.droppableId &&
-      source.index === destination.index) {
+  const handleDrop = async (requestId, newStatus) => {
+    setDraggedRequestId(null);
+    
+    if (!canDragAndDrop) {
+      showWarning('You do not have permission to move requests');
       return;
     }
 
-    const sourceColumn = source.droppableId;
-    const destColumn = destination.droppableId;
+    // Find the request and its current status
+    let currentStatus = null;
+    let request = null;
+    
+    for (const [status, statusRequests] of Object.entries(requests)) {
+      const found = statusRequests.find(r => r._id === requestId);
+      if (found) {
+        currentStatus = status;
+        request = found;
+        break;
+      }
+    }
+
+    if (!request || currentStatus === newStatus) return;
+
+    // Define valid status transitions
+    const validTransitions = {
+      'New': ['In Progress'],
+      'In Progress': ['Repaired', 'Scrap'],
+      'Repaired': ['In Progress'],
+      'Scrap': [],
+    };
+
+    // Check if transition is valid (skip for admin)
+    const userRole = user?.role?.toLowerCase();
+    const allowedStatuses = validTransitions[currentStatus] || [];
+    
+    if (userRole !== 'admin' && !allowedStatuses.includes(newStatus)) {
+      showError(`Cannot move from ${currentStatus} to ${newStatus}. Allowed: ${allowedStatuses.join(', ') || 'None'}`);
+      return;
+    }
 
     // Optimistic update
     const newRequests = { ...requests };
-    const [movedRequest] = newRequests[sourceColumn].splice(source.index, 1);
-    newRequests[destColumn].splice(destination.index, 0, movedRequest);
+    newRequests[currentStatus] = newRequests[currentStatus].filter(r => r._id !== requestId);
+    newRequests[newStatus] = [...newRequests[newStatus], request];
     setRequests(newRequests);
 
     // Update on server
     try {
-      await api.patch(`/requests/${draggableId}/kanban-status`, {
-        status: destColumn,
+      await api.patch(`/requests/${requestId}/kanban-status`, {
+        status: newStatus,
       });
 
-      showSuccess(`Request moved to ${destColumn}`);
+      showSuccess(`Request moved to ${newStatus}`);
+      
+      // Mark equipment as unusable if moved to Scrap
+      if (newStatus === 'Scrap' && request.equipment) {
+        showWarning(`Equipment "${request.equipment.name}" should be marked as unusable`);
+      }
     } catch (error) {
       console.error('Error updating status:', error);
-      showError('Failed to update request status. Changes reverted.');
+      const errorMessage = error.response?.data?.message || 'Failed to update request status';
+      showError(errorMessage);
       // Revert optimistic update
       fetchRequests();
     }
@@ -158,18 +206,20 @@ const KanbanBoard = () => {
       </div>
 
       {/* Kanban Board */}
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {Object.entries(requests).map(([status, statusRequests]) => (
-            <KanbanColumn
-              key={status}
-              status={status}
-              requests={statusRequests}
-              count={statusRequests.length}
-            />
-          ))}
-        </div>
-      </DragDropContext>
+      <div className="flex gap-4 overflow-x-auto pb-4">
+        {Object.entries(requests).map(([status, statusRequests]) => (
+          <KanbanColumn
+            key={status}
+            status={status}
+            requests={statusRequests}
+            count={statusRequests.length}
+            isDragDisabled={!canDragAndDrop}
+            onDragStart={handleDragStart}
+            onDrop={handleDrop}
+            draggedRequestId={draggedRequestId}
+          />
+        ))}
+      </div>
     </div>
   );
 };

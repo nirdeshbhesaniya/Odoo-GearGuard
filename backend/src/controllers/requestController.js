@@ -161,7 +161,7 @@ exports.getKanbanBoard = async (req, res, next) => {
 exports.getRequestById = async (req, res, next) => {
   try {
     const request = await MaintenanceRequest.findById(req.params.id)
-      .populate('equipment maintenanceTeam assignedTechnician createdBy closedBy');
+      .populate('equipment maintenanceTeam assignedTechnician createdBy');
 
     if (!request) {
       return res.status(404).json({

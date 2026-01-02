@@ -5,6 +5,18 @@ import { Toaster } from 'react-hot-toast';
 import App from './App';
 import './index.css';
 
+// Suppress react-beautiful-dnd defaultProps warning (library is deprecated)
+const originalError = console.error;
+console.error = (...args) => {
+  if (
+    typeof args[0] === 'string' &&
+    args[0].includes('Support for defaultProps will be removed')
+  ) {
+    return;
+  }
+  originalError.call(console, ...args);
+};
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>

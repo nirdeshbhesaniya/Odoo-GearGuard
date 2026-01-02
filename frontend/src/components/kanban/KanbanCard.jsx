@@ -1,4 +1,3 @@
-import { Draggable } from 'react-beautiful-dnd';
 import { Link } from 'react-router-dom';
 import Avatar from '../common/Avatar';
 import StatusBadge from '../common/StatusBadge';
@@ -8,23 +7,29 @@ const typeColors = {
   Preventive: 'bg-purple-100 text-purple-800',
 };
 
-const KanbanCard = ({ request, index }) => {
+const KanbanCard = ({ request, isDragDisabled = false, onDragStart, isDragging = false }) => {
   // Check if request is overdue
   const isOverdue = request.scheduledDate &&
     new Date(request.scheduledDate) < new Date() &&
     request.status !== 'Repaired' &&
     request.status !== 'Scrap';
 
+  const handleDragStart = (e) => {
+    if (!isDragDisabled && onDragStart) {
+      onDragStart(e, request._id);
+    }
+  };
+
   return (
-    <Draggable draggableId={request._id} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          className={`bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow cursor-move ${snapshot.isDragging ? 'shadow-lg ring-2 ring-blue-500' : ''
-            } ${isOverdue ? 'border-red-500 border-2' : 'border-gray-200'}`}
-        >
+    <div
+      draggable={!isDragDisabled}
+      onDragStart={handleDragStart}
+      className={`bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow select-none ${
+        isDragDisabled ? 'cursor-default' : 'cursor-move'
+      } ${
+        isDragging ? 'opacity-50 shadow-lg ring-2 ring-blue-500' : ''
+      } ${isOverdue ? 'border-red-500 border-2' : 'border-gray-200'}`}
+    >
           {/* Overdue Badge */}
           {isOverdue && (
             <div className="mb-2">
@@ -118,8 +123,6 @@ const KanbanCard = ({ request, index }) => {
             )}
           </div>
         </div>
-      )}
-    </Draggable>
   );
 };
 

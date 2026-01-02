@@ -28,7 +28,11 @@ const RequestDetail = () => {
     try {
       setLoading(true);
       const response = await requestService.getRequestById(id);
-      setRequest(response.data?.data || response.data);
+      console.log('Request detail response:', response);
+      console.log('Request data:', response.data);
+      const requestData = response.data?.request || response.data?.data?.request || response.data?.data || response.data;
+      console.log('Setting request to:', requestData);
+      setRequest(requestData);
     } catch (error) {
       showError('Failed to load request details');
       console.error('Error:', error);
@@ -312,7 +316,7 @@ const RequestDetail = () => {
               <div>
                 <label className="text-sm text-gray-600">Maintenance Team</label>
                 <p className="text-gray-900 font-medium">
-                  {request.maintenanceTeam?.name || 'Not Assigned'}
+                  {request.maintenanceTeam?.teamName || 'Not Assigned'}
                 </p>
               </div>
               <div>
