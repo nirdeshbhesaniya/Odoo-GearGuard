@@ -10,6 +10,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 
+
 // Dashboard
 import Dashboard from './pages/Dashboard';
 
@@ -69,7 +70,6 @@ function App() {
           {/* Private Routes */}
           <Route element={<PrivateRoute />}>
             <Route element={<Layout />}>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<Dashboard />} />
 
               {/* Requests */}
