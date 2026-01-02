@@ -18,7 +18,9 @@ router.use(protect);
  *     security:
  *       - bearerAuth: []
  */
-router.get('/', authorize(USER_ROLES.ADMIN, USER_ROLES.MANAGER), userController.getUsers);
+// Allow all authenticated users to view users (needed for technician assignment in requests)
+// Filtering by role (e.g., ?role=technician) is allowed for dropdown population
+router.get('/', userController.getUsers);
 router.get('/:id', userController.getUserById);
 
 // Own profile routes (any authenticated user)

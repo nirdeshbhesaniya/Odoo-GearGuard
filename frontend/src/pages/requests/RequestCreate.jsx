@@ -65,6 +65,38 @@ const RequestCreate = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Auto-fill logic when equipment is selected
+  const handleEquipmentChange = async (e) => {
+    const equipmentId = e.target.value;
+    setFormData((prev) => ({ ...prev, equipment: equipmentId }));
+
+    if (equipmentId) {
+      try {
+        const response = await equipmentService.getEquipmentById(equipmentId);
+        const equipment = response.data?.data || response.data;
+        
+        // Auto-fill maintenance team from equipment if available
+        if (equipment.maintenanceTeam) {
+          setFormData((prev) => ({
+            ...prev,
+            equipment: equipmentId,
+            maintenanceTeam: equipment.maintenanceTeam._id || equipment.maintenanceTeam,
+          }));
+        }
+
+        // Auto-fill default technician if available
+        if (equipment.defaultTechnician) {
+          setFormData((prev) => ({
+            ...prev,
+            assignedTechnician: equipment.defaultTechnician._id || equipment.defaultTechnician,
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching equipment details:', error);
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -188,7 +220,7 @@ const RequestCreate = () => {
                   id="equipment"
                   name="equipment"
                   value={formData.equipment}
-                  onChange={handleChange}
+                  onChange={handleEquipmentChange}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   required
                 >
@@ -278,7 +310,7 @@ const RequestCreate = () => {
             {/* Duration Hours */}
             <div>
               <label htmlFor="durationHours" className="block text-sm font-medium text-gray-700 mb-2">
-                Duration (Hours)
+                Estimated Duration (Hours)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

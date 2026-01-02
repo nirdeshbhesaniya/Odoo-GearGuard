@@ -15,14 +15,14 @@ const {
 exports.getRequests = async (req, res, next) => {
   try {
     const {
-      page, limit, status, type, priority, assignedTeam, equipment, search,
+      page, limit, status, type, priority, maintenanceTeam, equipment, search,
     } = req.query;
 
     const filter = {};
     if (status) filter.status = status;
     if (type) filter.type = type;
     if (priority) filter.priority = priority;
-    if (assignedTeam) filter.assignedTeam = assignedTeam;
+    if (maintenanceTeam) filter.maintenanceTeam = maintenanceTeam;
     if (equipment) filter.equipment = equipment;
     if (search) {
       filter.$or = [
@@ -35,7 +35,7 @@ exports.getRequests = async (req, res, next) => {
     const result = await paginate(MaintenanceRequest, filter, {
       page: parseInt(page, 10) || 1,
       limit: parseInt(limit, 10) || 10,
-      populate: 'equipment assignedTeam assignedTechnicians createdBy',
+      populate: 'equipment maintenanceTeam assignedTechnician createdBy',
       sort: '-createdAt',
     });
 
@@ -161,7 +161,7 @@ exports.getKanbanBoard = async (req, res, next) => {
 exports.getRequestById = async (req, res, next) => {
   try {
     const request = await MaintenanceRequest.findById(req.params.id)
-      .populate('equipment assignedTeam assignedTechnicians createdBy closedBy');
+      .populate('equipment maintenanceTeam assignedTechnician createdBy closedBy');
 
     if (!request) {
       return res.status(404).json({

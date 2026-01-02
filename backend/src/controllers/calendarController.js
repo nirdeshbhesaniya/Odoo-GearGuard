@@ -97,11 +97,11 @@ exports.getTeamAvailability = async (req, res, next) => {
     };
 
     if (teamId) {
-      filter.assignedTeam = teamId;
+      filter.maintenanceTeam = teamId;
     }
 
     const assignments = await MaintenanceRequest.find(filter)
-      .populate('assignedTeam assignedTechnicians');
+      .populate('maintenanceTeam assignedTechnician');
 
     res.json({
       status: 'success',

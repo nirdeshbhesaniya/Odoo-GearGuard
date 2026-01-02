@@ -25,10 +25,24 @@ const teamSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    description: {
+      type: String,
+      trim: true,
+    },
+    teamLead: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
     members: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+      },
+    ],
+    specializations: [
+      {
+        type: String,
+        trim: true,
       },
     ],
     isActive: {

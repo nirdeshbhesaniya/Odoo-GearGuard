@@ -26,7 +26,7 @@ exports.getEquipment = asyncHandler(async (req, res) => {
   const result = await paginate(Equipment, filter, {
     page: parseInt(page, 10) || 1,
     limit: parseInt(limit, 10) || 10,
-    populate: 'assignedTo createdBy',
+    populate: 'maintenanceTeam defaultTechnician createdBy',
     sort: '-createdAt',
   });
 
@@ -41,7 +41,7 @@ exports.getEquipment = asyncHandler(async (req, res) => {
 // @access  Private
 exports.getEquipmentById = asyncHandler(async (req, res) => {
   const equipment = await Equipment.findById(req.params.id)
-    .populate('assignedTo createdBy');
+    .populate('maintenanceTeam defaultTechnician createdBy');
 
   if (!equipment) {
     throw new NotFoundError('Equipment not found');
@@ -58,7 +58,7 @@ exports.getEquipmentById = asyncHandler(async (req, res) => {
 // @access  Private
 exports.getMaintenanceHistory = asyncHandler(async (req, res) => {
   const history = await MaintenanceRequest.find({ equipment: req.params.id })
-    .populate('assignedTeam assignedTechnicians createdBy')
+    .populate('maintenanceTeam defaultTechnician createdBy')
     .sort('-createdAt');
 
   res.json({

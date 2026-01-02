@@ -19,7 +19,7 @@ exports.getTeams = async (req, res, next) => {
     const result = await paginate(Team, filter, {
       page: parseInt(page, 10) || 1,
       limit: parseInt(limit, 10) || 10,
-      populate: 'lead members createdBy',
+      populate: 'teamLead members createdBy',
       sort: 'name',
     });
 
@@ -38,7 +38,7 @@ exports.getTeams = async (req, res, next) => {
 exports.getTeamById = async (req, res, next) => {
   try {
     const team = await Team.findById(req.params.id)
-      .populate('lead members createdBy');
+      .populate('teamLead members createdBy');
 
     if (!team) {
       return res.status(404).json({

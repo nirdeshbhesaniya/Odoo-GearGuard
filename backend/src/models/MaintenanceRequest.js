@@ -26,7 +26,6 @@ const maintenanceRequestSchema = new mongoose.Schema(
     requestNumber: {
       type: String,
       unique: true,
-      required: true,
     },
     subject: {
       type: String,
