@@ -11,6 +11,7 @@ import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import LandingPage from './pages/LandingPage';
 
+
 // Dashboard
 import Dashboard from './pages/Dashboard';
 
